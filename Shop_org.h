@@ -8,6 +8,7 @@
 using namespace std;
 
 #define kDefaultNumChairs 3
+#define kDefaultCustomers 10
 #define kDefaultNumBarbers 1
 
 class Shop_org
@@ -16,14 +17,20 @@ public:
    // take in the number of barbers and use the default otherwise
    // we will need to adjust the constructor to fill and size the array
    // both of the arrays were originally 0
-   Shop_org(int num_chairs, int num_barbers) : max_waiting_cust_((num_chairs > 0) ? num_chairs : kDefaultNumChairs), customer_in_chair_{nullptr},
-                              in_service_{nullptr}, money_paid_{nullptr}, cust_drops_(0)
+   Shop_org(int num_customers, int num_chairs, int num_barbers) : max_waiting_cust_((num_chairs > 0) ? num_chairs : kDefaultNumChairs),
+                                                                  customer_in_chair_{nullptr},
+                                                                  in_service_{nullptr}, 
+                                                                  money_paid_{nullptr},
+                                                                  cust_drops_(0)
    {
-      int numBarbarbers    = (num_barbers > 0) ? num_barbers : kDefaultNumBarbers;
-      customer_in_chair_   = new int[numBarbarbers];
-      in_service_          = new bool[numBarbarbers];
-      money_paid_          = new bool[numBarbarbers];
-      init(numBarbarbers);
+      int numBarbarbers = (num_barbers > 0) ? num_barbers : kDefaultNumBarbers;
+      // intialize the shop to know how many customers there are
+      int numCustomers = (num_customers > 0) ? num_customers : kDefaultCustomers;
+
+      customer_in_chair_ = new int[numBarbarbers];
+      in_service_ = new bool[numBarbarbers];
+      money_paid_ = new bool[numBarbarbers];
+      init(numCustomers, numBarbarbers);
    };
 
    Shop_org() : max_waiting_cust_(kDefaultNumChairs), customer_in_chair_(0), in_service_{nullptr},
@@ -32,7 +39,7 @@ public:
       customer_in_chair_ = new int[kDefaultNumBarbers];
       in_service_ = new bool[kDefaultNumBarbers];
       money_paid_ = new bool[kDefaultNumBarbers];
-      init(kDefaultNumBarbers);
+      init(kDefaultCustomers, kDefaultNumBarbers);
    };
 
    ~Shop_org()
@@ -71,19 +78,28 @@ private:
 
    queue<int> waiting_chairs_; // includes the ids of all waiting threads
 
+   // will be used by the customer to signal the sleeping barber
+   queue<int> barbers_sleeping_; // includes the ids of all sleeping barbers
+
    int cust_drops_;
 
    // Mutexes and condition variables to coordinate threads
    // mutex_ is used in conjuction with all conditional variables
    pthread_mutex_t mutex_;
-   pthread_cond_t cond_customers_waiting_;
-   pthread_cond_t* cond_customer_served_;
-   pthread_cond_t* cond_barber_paid_;
-   pthread_cond_t* cond_barber_sleeping_;
+   // we want to make this an array so that we can send a signal specifically
+   // to the thread waiting at the front of the Q
+
+   // indexed with customer ID and will only be as large as the number of customers
+   pthread_cond_t *cond_customers_waiting_;
+   pthread_cond_t *cond_customer_served_;
+   pthread_cond_t *cond_barber_paid_;
+   // we want to make this an array so that we can send a signal specifically
+   // to the thread waiting at the front of the Q
+   pthread_cond_t *cond_barber_sleeping_;
 
    static const int barber = 0; // the id of the barber thread
 
-   void init(int numBarbers);
+   void init(int numCustomers, int numBarbers);
    string int2string(int i);
    void print(int person, string message);
 };

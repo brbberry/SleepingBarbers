@@ -45,7 +45,8 @@ int main(int argc, char *argv[])
    pthread_t barber_thread[num_barbers];
    pthread_t customer_threads[num_customers];
    // 0 for number of barbers
-   Shop_org shop(num_chairs,0);
+   // added num_customers 
+   Shop_org shop(num_customers, num_chairs,0);
   
    ThreadParam* barber_param = new ThreadParam(&shop, 0, service_time);
    // 0 for the time being to preserve
