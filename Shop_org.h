@@ -16,19 +16,23 @@ public:
    // take in the number of barbers and use the default otherwise
    // we will need to adjust the constructor to fill and size the array
    // both of the arrays were originally 0
-   Shop_org(int num_chairs) : max_waiting_cust_((num_chairs > 0) ? num_chairs : kDefaultNumChairs), customer_in_chair_{nullptr},
+   Shop_org(int num_chairs, int num_barbers) : max_waiting_cust_((num_chairs > 0) ? num_chairs : kDefaultNumChairs), customer_in_chair_{nullptr},
                               in_service_{nullptr}, money_paid_{nullptr}, cust_drops_(0)
    {
-      customer_in_chair_ = new int[kDefaultNumBarbers];
-      in_service_ = new bool[kDefaultNumBarbers];
-      money_paid_ = new bool[kDefaultNumBarbers];
-      init();
+      int numBarbarbers    = (num_barbers > 0) ? num_barbers : kDefaultNumBarbers;
+      customer_in_chair_   = new int[numBarbarbers];
+      in_service_          = new bool[numBarbarbers];
+      money_paid_          = new bool[numBarbarbers];
+      init(numBarbarbers);
    };
 
    Shop_org() : max_waiting_cust_(kDefaultNumChairs), customer_in_chair_(0), in_service_{nullptr},
                 money_paid_{nullptr}, cust_drops_(0)
    {
-      init();
+      customer_in_chair_ = new int[kDefaultNumBarbers];
+      in_service_ = new bool[kDefaultNumBarbers];
+      money_paid_ = new bool[kDefaultNumBarbers];
+      init(kDefaultNumBarbers);
    };
 
    ~Shop_org()
@@ -73,13 +77,13 @@ private:
    // mutex_ is used in conjuction with all conditional variables
    pthread_mutex_t mutex_;
    pthread_cond_t cond_customers_waiting_;
-   pthread_cond_t cond_customer_served_;
-   pthread_cond_t cond_barber_paid_;
-   pthread_cond_t cond_barber_sleeping_;
+   pthread_cond_t* cond_customer_served_;
+   pthread_cond_t* cond_barber_paid_;
+   pthread_cond_t* cond_barber_sleeping_;
 
    static const int barber = 0; // the id of the barber thread
 
-   void init();
+   void init(int numBarbers);
    string int2string(int i);
    void print(int person, string message);
 };

@@ -31,19 +31,25 @@ int main(int argc, char *argv[])
        return -1;
    }
 
+    // number of waiting chairs
    int num_chairs       = atoi(argv[1]);
+   // number of incoming customers
    int num_customers    = atoi(argv[2]);
-   int service_time     = atoi(argv[3]);
-   //int num_barbers      = atoi(argv[4]);
+   // number of barbers
+   int num_barbers      = atoi(argv[3]);
+   // service time
+   int service_time     = atoi(argv[4]);
 
    //Single barber, one shop, many customers
    // will need to make this an array
-   pthread_t barber_thread;//s[num_barbers];
+   pthread_t barber_thread[num_barbers];
    pthread_t customer_threads[num_customers];
-   Shop_org shop(num_chairs);
+   // 0 for number of barbers
+   Shop_org shop(num_chairs,0);
   
    ThreadParam* barber_param = new ThreadParam(&shop, 0, service_time);
-   pthread_create(&barber_thread, NULL, barber, barber_param);
+   // 0 for the time being to preserve
+   pthread_create(&barber_thread[0], NULL, barber, barber_param);
 
    for (int i = 0; i < num_customers; i++) 
    {
@@ -58,7 +64,8 @@ int main(int argc, char *argv[])
    {
        pthread_join(customer_threads[i], NULL);
    }
-   pthread_cancel(barber_thread);
+   // 0 for the time being as we are only working with 1
+   pthread_cancel(barber_thread[0]);
 
    cout << "# customers who didn't receive a service = " << shop.get_cust_drops() << endl;
    return 0;
@@ -74,10 +81,10 @@ void *barber(void *arg)
 
    while(true) 
    {
-       //ADD ID
+       //ADD ID barber isntead of 0
       shop.helloCustomer(0);
       usleep(service_time);
-      //ADD ID
+      //ADD ID of barber instead of 0
       shop.byeCustomer(0);
    }
    return nullptr;
