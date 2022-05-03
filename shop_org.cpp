@@ -42,7 +42,7 @@ bool Shop_org::visitShop(int id)
    
    // If someone is being served or transitioning waiting to service chair
    // then take a chair and wait for service
-   if (customer_in_chair_ != 0 || !waiting_chairs_.empty()) 
+   if (customer_in_chair_[0] != 0 || !waiting_chairs_.empty()) 
    {
       waiting_chairs_.push(id);
       print(id, "takes a waiting chair. # waiting seats available = " + int2string(max_waiting_cust_ - waiting_chairs_.size()));
@@ -52,8 +52,9 @@ bool Shop_org::visitShop(int id)
 
 
    print(id, "moves to the service chair. # waiting seats available = " + int2string(max_waiting_cust_ - waiting_chairs_.size()));
-   customer_in_chair_ = id;
-   in_service_ = true;
+   // currently using 0 as there is only 1 barber
+   customer_in_chair_[0] = id;
+   in_service_[0] = true;
 
    // wake up the barber just in case if he is sleeping
    pthread_cond_signal(&cond_barber_sleeping_);
@@ -68,54 +69,59 @@ void Shop_org::leaveShop(int id)
 
    // Wait for service to be completed
    print(id, "wait for the hair-cut to be done");
-   while (in_service_ == true)
+
+   // currently using 0 as there is only 1 barber
+   while (in_service_[0] == true)
    {
       pthread_cond_wait(&cond_customer_served_, &mutex_);
    }
    
    // Pay the barber and signal barber appropriately
-   money_paid_ = true;
+   money_paid_[0] = true;
    pthread_cond_signal(&cond_barber_paid_);
    print( id, "says good-bye to the barber." );
    pthread_mutex_unlock(&mutex_);
 }
 
-void Shop_org::helloCustomer() 
+void Shop_org::helloCustomer(int id) 
 {
    pthread_mutex_lock(&mutex_);
    
    // If no customers than barber can sleep
-   while (waiting_chairs_.empty() && customer_in_chair_ == 0 ) 
+   // currently using 0 as there is only 1 barber
+   while (waiting_chairs_.empty() && customer_in_chair_[0] == 0 ) 
    {
       print(barber, "sleeps because of no customers.");
       pthread_cond_wait(&cond_barber_sleeping_, &mutex_);
    }
 
-   while (customer_in_chair_ == 0)               // check if the customer, sit down.
+   while (customer_in_chair_[0] == 0)               // check if the customer, sit down.
    {
        pthread_cond_wait(&cond_barber_sleeping_, &mutex_);
    }
-
-   print(barber, "starts a hair-cut service for " + int2string( customer_in_chair_ ) );
+   // currently using 0 as there is only 1 barber
+   print(barber, "starts a hair-cut service for " + int2string( customer_in_chair_[0] ) );
    pthread_mutex_unlock( &mutex_ );
 }
 
-void Shop_org::byeCustomer() 
+void Shop_org::byeCustomer(int id) 
 {
   pthread_mutex_lock(&mutex_);
 
   // Hair Cut-Service is done so signal customer and wait for payment
-  in_service_ = false;
-  print(barber, "says he's done with a hair-cut service for " + int2string(customer_in_chair_));
-  money_paid_ = false;
+     // currently using 0 as there is only 1 barber
+  in_service_[0] = false;
+     // currently using 0 as there is only 1 barber
+  print(barber, "says he's done with a hair-cut service for " + int2string(customer_in_chair_[0]));
+  money_paid_[0] = false;
   pthread_cond_signal(&cond_customer_served_);
-  while (money_paid_ == false)
+  while (money_paid_[0] == false)
   {
       pthread_cond_wait(&cond_barber_paid_, &mutex_);
   }
 
   //Signal to customer to get next one
-  customer_in_chair_ = 0;
+  customer_in_chair_[0] = 0;
   print(barber, "calls in another customer");
   pthread_cond_signal( &cond_customers_waiting_ );
 

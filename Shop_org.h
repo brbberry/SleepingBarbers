@@ -7,67 +7,78 @@
 #include <queue>
 using namespace std;
 
-#define kDefaultNumChairs     3
-#define kDefaultNumBarbers    1
+#define kDefaultNumChairs 3
+#define kDefaultNumBarbers 1
 
-class Shop_org 
+class Shop_org
 {
 public:
-
    // take in the number of barbers and use the default otherwise
    // we will need to adjust the constructor to fill and size the array
-   Shop_org(int num_chairs) : max_waiting_cust_((num_chairs > 0 ) ? num_chairs : kDefaultNumChairs), customer_in_chair_(0),
-      in_service_(false), money_paid_(false), cust_drops_(0)
-   { 
-      init(); 
+   // both of the arrays were originally 0
+   Shop_org(int num_chairs) : max_waiting_cust_((num_chairs > 0) ? num_chairs : kDefaultNumChairs), customer_in_chair_{nullptr},
+                              in_service_{nullptr}, money_paid_{nullptr}, cust_drops_(0)
+   {
+      customer_in_chair_ = new int[kDefaultNumBarbers];
+      in_service_ = new bool[kDefaultNumBarbers];
+      money_paid_ = new bool[kDefaultNumBarbers];
+      init();
    };
 
-
-   Shop_org() : max_waiting_cust_(kDefaultNumChairs), customer_in_chair_(0), in_service_(false),
-      money_paid_(false), cust_drops_(0)
-   { 
-      init(); 
+   Shop_org() : max_waiting_cust_(kDefaultNumChairs), customer_in_chair_(0), in_service_{nullptr},
+                money_paid_{nullptr}, cust_drops_(0)
+   {
+      init();
    };
 
-   bool visitShop(int id);   // return true only when a customer got a service
+   ~Shop_org()
+   {
+      delete customer_in_chair_;
+      customer_in_chair_ = nullptr;
+      delete in_service_;
+      in_service_ = nullptr;
+      delete money_paid_;
+      money_paid_ = nullptr;
+   }
+
+   bool visitShop(int id); // return true only when a customer got a service
    void leaveShop(int id);
-   void helloCustomer();
-   void byeCustomer();
+   void helloCustomer(int id);
+   void byeCustomer(int id);
    int get_cust_drops() const;
 
- private:
-   const int max_waiting_cust_;              // the max number of threads that can wait
+private:
+   const int max_waiting_cust_; // the max number of threads that can wait
 
    // this is the customer id of the one customer in the barber chair being
    // serviced
 
    // for many barbers this will be the size of the number of barbers
-   int customer_in_chair_;
-
+   int *customer_in_chair_;
 
    // this is a flag used to indicate that the one chair the barber
    // services is occupied by a patron getting their hair cut
 
    // for many barbers this will be the size of the number of barbers
-   bool in_service_;            
+   bool *in_service_;
 
    // for many barbers this will be the size of the number of barbers
-   bool money_paid_;
+   bool *money_paid_;
 
-   queue<int> waiting_chairs_;  // includes the ids of all waiting threads
+   queue<int> waiting_chairs_; // includes the ids of all waiting threads
 
    int cust_drops_;
 
    // Mutexes and condition variables to coordinate threads
    // mutex_ is used in conjuction with all conditional variables
    pthread_mutex_t mutex_;
-   pthread_cond_t  cond_customers_waiting_;
-   pthread_cond_t  cond_customer_served_;
-   pthread_cond_t  cond_barber_paid_;
-   pthread_cond_t  cond_barber_sleeping_;
+   pthread_cond_t cond_customers_waiting_;
+   pthread_cond_t cond_customer_served_;
+   pthread_cond_t cond_barber_paid_;
+   pthread_cond_t cond_barber_sleeping_;
 
    static const int barber = 0; // the id of the barber thread
-  
+
    void init();
    string int2string(int i);
    void print(int person, string message);
