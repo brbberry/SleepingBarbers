@@ -27,18 +27,19 @@ public:
       // intialize the shop to know how many customers there are
       int numCustomers = (num_customers > 0) ? num_customers : kDefaultCustomers;
 
-      customer_in_chair_ = new int[numBarbarbers];
-      in_service_ = new bool[numBarbarbers];
-      money_paid_ = new bool[numBarbarbers];
+      // +1 to allow for barber ID to be used as signal catcher
+      customer_in_chair_ = new int[numBarbarbers+1];
+      in_service_ = new bool[numBarbarbers+1];
+      money_paid_ = new bool[numBarbarbers+1];
       init(numCustomers, numBarbarbers);
    };
 
    Shop_org() : max_waiting_cust_(kDefaultNumChairs), customer_in_chair_(0), in_service_{nullptr},
                 money_paid_{nullptr}, cust_drops_(0)
    {
-      customer_in_chair_ = new int[kDefaultNumBarbers];
-      in_service_ = new bool[kDefaultNumBarbers];
-      money_paid_ = new bool[kDefaultNumBarbers];
+      customer_in_chair_ = new int[kDefaultNumBarbers+1];
+      in_service_ = new bool[kDefaultNumBarbers+1];
+      money_paid_ = new bool[kDefaultNumBarbers+1];
       init(kDefaultCustomers, kDefaultNumBarbers);
    };
 
@@ -51,9 +52,9 @@ public:
       delete money_paid_;
       money_paid_ = nullptr;
    }
-
-   bool visitShop(int id); // return true only when a customer got a service
-   void leaveShop(int id);
+   
+   int visitShop(int id); // return true only when a customer got a service
+   void leaveShop(int id, int barberID);
    void helloCustomer(int id);
    void byeCustomer(int id);
    int get_cust_drops() const;
@@ -79,7 +80,7 @@ private:
    queue<int> waiting_chairs_; // includes the ids of all waiting threads
 
    // will be used by the customer to signal the sleeping barber
-   queue<int> barbers_sleeping_; // includes the ids of all sleeping barbers
+   queue<int> barbers_ready_; // includes the ids of all sleeping barbers
 
    int cust_drops_;
 
@@ -90,7 +91,7 @@ private:
    // to the thread waiting at the front of the Q
 
    // indexed with customer ID and will only be as large as the number of customers
-   pthread_cond_t *cond_customers_waiting_;
+   pthread_cond_t cond_customers_waiting_;
    pthread_cond_t *cond_customer_served_;
    pthread_cond_t *cond_barber_paid_;
    // we want to make this an array so that we can send a signal specifically
