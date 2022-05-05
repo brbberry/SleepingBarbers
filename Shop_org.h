@@ -28,18 +28,18 @@ public:
       int numCustomers = (num_customers > 0) ? num_customers : kDefaultCustomers;
 
       // +1 to allow for barber ID to be used as signal catcher
-      customer_in_chair_ = new int[numBarbarbers+1];
-      in_service_ = new bool[numBarbarbers+1];
-      money_paid_ = new bool[numBarbarbers+1];
+      customer_in_chair_   = new int[numBarbarbers+1];
+      in_service_          = new bool[numBarbarbers+1];
+      money_paid_          = new bool[numBarbarbers+1];
       init(numCustomers, numBarbarbers);
    };
 
    Shop_org() : max_waiting_cust_(kDefaultNumChairs), customer_in_chair_(0), in_service_{nullptr},
                 money_paid_{nullptr}, cust_drops_(0)
    {
-      customer_in_chair_ = new int[kDefaultNumBarbers+1];
-      in_service_ = new bool[kDefaultNumBarbers+1];
-      money_paid_ = new bool[kDefaultNumBarbers+1];
+      customer_in_chair_   = new int[kDefaultNumBarbers+1];
+      in_service_          = new bool[kDefaultNumBarbers+1];
+      money_paid_          = new bool[kDefaultNumBarbers+1];
       init(kDefaultCustomers, kDefaultNumBarbers);
    };
 

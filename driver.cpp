@@ -56,14 +56,7 @@ int main(int argc, char *argv[])
         pthread_create(&barber_thread[i], NULL, barber, barber_param);
     }
 
-    /*
-    // the origional
-    ThreadParam *barber_param = new ThreadParam(&shop, 0, service_time);
-
-    // 0 for the time being to preserve
-    pthread_create(&barber_thread[0], NULL, barber, barber_param);
-    */
-
+    
     for (int i = 0; i < num_customers; i++)
     {
         usleep(rand() % 1000);
@@ -81,15 +74,9 @@ int main(int argc, char *argv[])
     // end the barber threads
     for (int i = 0; i < num_barbers; i++)
     {
-        cout << "killing barber thread " << i << endl;
         pthread_cancel(barber_thread[i]);
     }
 
-    /*
-    // origional
-    // 0 for the time being as we are only working with 1
-    pthread_cancel(barber_thread[0]);
-    */
     cout << "# customers who didn't receive a service = " << shop.get_cust_drops() << endl;
     return 0;
 }
