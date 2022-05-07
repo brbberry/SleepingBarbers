@@ -49,7 +49,7 @@ int Shop_org::visitShop(int id)
    //  If all chairs are full then leave shop
    if (waiting_chairs_.size() == max_waiting_cust_)
    {
-      print(id, "leaves the shop because of no available waiting chairs.");
+      print(id, "leaves the shop because of no available waiting git chairs.");
       ++cust_drops_;
       /*
       if (!barbers_ready_.empty())
@@ -134,7 +134,8 @@ void Shop_org::helloCustomer(int id)
 
    pthread_mutex_lock(&mutex_);
 
-   if(ready_to_serve[id] == false) {
+   if (ready_to_serve[id] == false)
+   {
       barbers_ready_.push(id);
    }
 

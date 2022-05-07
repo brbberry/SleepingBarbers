@@ -32,7 +32,7 @@ public:
       customer_in_chair_ = new int[numBarbarbers + 1];
       in_service_ = new bool[numBarbarbers + 1];
       money_paid_ = new bool[numBarbarbers + 1];
-      ready_to_serve = new bool[numBarbarbers+1];
+      ready_to_serve = new bool[numBarbarbers + 1];
       ready_to_serve[numBarbarbers + 1] = {0};
       init(numCustomers, numBarbarbers);
    };
@@ -42,9 +42,9 @@ public:
    {
       customer_in_chair_ = new int[kDefaultNumBarbers + 1];
       in_service_ = new bool[kDefaultNumBarbers + 1];
-      money_paid_ = new bool[kDefaultNumBarbers + 1];      
+      money_paid_ = new bool[kDefaultNumBarbers + 1];
       ready_to_serve = new bool[kDefaultNumBarbers];
-      ready_to_serve[kDefaultNumBarbers+ 1] = {0};
+      ready_to_serve[kDefaultNumBarbers + 1] = {0};
       init(kDefaultCustomers, kDefaultNumBarbers);
    };
 

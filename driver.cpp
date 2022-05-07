@@ -1,7 +1,7 @@
 // Blake Berry
 // 05/06/2022
 // Homework 2
-// This Program driver simulates the barber shop probelm. Barber threads and 
+// This Program driver simulates the barber shop probelm. Barber threads and
 // customer threads are created and serviced using synchronization through
 // a monitor. The customers are servied in a FCFS order
 //-----------------------------------------------------------------------------
