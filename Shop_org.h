@@ -19,8 +19,9 @@ public:
    // both of the arrays were originally 0
    Shop_org(int num_customers, int num_chairs, int num_barbers) : max_waiting_cust_((num_chairs > 0) ? num_chairs : kDefaultNumChairs),
                                                                   customer_in_chair_{nullptr},
-                                                                  in_service_{nullptr}, 
+                                                                  in_service_{nullptr},
                                                                   money_paid_{nullptr},
+                                                                  ready_to_serve{nullptr},
                                                                   cust_drops_(0)
    {
       int numBarbarbers = (num_barbers > 0) ? num_barbers : kDefaultNumBarbers;
@@ -28,18 +29,22 @@ public:
       int numCustomers = (num_customers > 0) ? num_customers : kDefaultCustomers;
 
       // +1 to allow for barber ID to be used as signal catcher
-      customer_in_chair_   = new int[numBarbarbers+1];
-      in_service_          = new bool[numBarbarbers+1];
-      money_paid_          = new bool[numBarbarbers+1];
+      customer_in_chair_ = new int[numBarbarbers + 1];
+      in_service_ = new bool[numBarbarbers + 1];
+      money_paid_ = new bool[numBarbarbers + 1];
+      ready_to_serve = new bool[numBarbarbers+1];
+      ready_to_serve[numBarbarbers + 1] = {0};
       init(numCustomers, numBarbarbers);
    };
 
    Shop_org() : max_waiting_cust_(kDefaultNumChairs), customer_in_chair_(0), in_service_{nullptr},
                 money_paid_{nullptr}, cust_drops_(0)
    {
-      customer_in_chair_   = new int[kDefaultNumBarbers+1];
-      in_service_          = new bool[kDefaultNumBarbers+1];
-      money_paid_          = new bool[kDefaultNumBarbers+1];
+      customer_in_chair_ = new int[kDefaultNumBarbers + 1];
+      in_service_ = new bool[kDefaultNumBarbers + 1];
+      money_paid_ = new bool[kDefaultNumBarbers + 1];      
+      ready_to_serve = new bool[kDefaultNumBarbers];
+      ready_to_serve[kDefaultNumBarbers+ 1] = {0};
       init(kDefaultCustomers, kDefaultNumBarbers);
    };
 
@@ -51,8 +56,16 @@ public:
       in_service_ = nullptr;
       delete money_paid_;
       money_paid_ = nullptr;
+      delete ready_to_serve;
+      ready_to_serve = nullptr;
+      delete cond_customer_served_;
+      cond_customer_served_ = nullptr;
+      delete cond_barber_paid_;
+      cond_barber_paid_ = nullptr;
+      delete cond_barber_sleeping_;
+      cond_barber_sleeping_ = nullptr;
    }
-   
+
    int visitShop(int id); // return true only when a customer got a service
    void leaveShop(int id, int barberID);
    void helloCustomer(int id);
@@ -76,6 +89,8 @@ private:
 
    // for many barbers this will be the size of the number of barbers
    bool *money_paid_;
+
+   bool *ready_to_serve;
 
    queue<int> waiting_chairs_; // includes the ids of all waiting threads
 
