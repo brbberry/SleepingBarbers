@@ -9,20 +9,30 @@
 #include <iostream>
 #include <sys/time.h>
 #include <unistd.h>
-#include "Shop_org.h"
+#include "Shop.h"
 using namespace std;
 
+
+
+//------------------------- Barber ---------------------------------------
+// creates a barber thread synchronized using a monitor
+// Postconditions: executes barber tasks 
 void *barber(void *);
+
+
+//------------------------- Customer ---------------------------------------
+// creates a customer thread synchronized using a monitor
+// Postconditions: executes customer tasks
 void *customer(void *);
 
-// ThreadParam class
-// This class is used as a way to pass more
-// than one argument to a thread.
 class ThreadParam
 {
 public:
-    ThreadParam(Shop_org *shop, int id, int service_time) : shop(shop), id(id), service_time(service_time){};
-    Shop_org *shop;
+    ThreadParam(Shop *shop, int id, int service_time) : 
+        shop(shop), 
+        id(id), 
+        service_time(service_time){};
+    Shop *shop;
     int id;
     int service_time;
 };
@@ -31,7 +41,6 @@ int main(int argc, char *argv[])
 {
 
     // Read arguments from command line
-    // TODO: Validate values
     if (argc != 5)
     {
         cout << "Usage: num_chairs num_customers service_time" << endl;
@@ -60,9 +69,9 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (num_customers < 0)
+    if (num_customers <= 0)
     {
-        cout << "Cannot have a negative amount of customers" << endl;
+        cout << "No One Came In Today, SHop Closes" << endl;
         return -1;
     }
 
@@ -76,7 +85,7 @@ int main(int argc, char *argv[])
     pthread_t barber_thread[num_barbers];
     pthread_t customer_threads[num_customers];
 
-    Shop_org shop(num_customers, num_chairs, num_barbers);
+    Shop shop(num_customers, num_chairs, num_barbers);
 
     // babrber thread initailization
     for (int i = 0; i < num_barbers; i++)
@@ -107,7 +116,8 @@ int main(int argc, char *argv[])
         pthread_cancel(barber_thread[i]);
     }
 
-    cout << "# customers who didn't receive a service = " << shop.get_cust_drops() << endl;
+    cout << "# customers who didn't receive a service = " << 
+            shop.get_cust_drops() << endl;
     return 0;
 }
 
@@ -115,17 +125,15 @@ void *barber(void *arg)
 {
     ThreadParam *barber_param = (ThreadParam *)arg;
 
-    Shop_org &shop = *barber_param->shop;
-    int service_time = barber_param->service_time;
-    int id1 = barber_param->id;
+    Shop &shop          = *barber_param->shop;
+    int service_time    = barber_param->service_time;
+    int id1             = barber_param->id;
     delete barber_param;
 
     while (true)
     {
-        // ADD ID barber isntead of 0
         shop.helloCustomer(id1);
         usleep(service_time);
-        // ADD ID of barber instead of 0
         shop.byeCustomer(id1);
     }
     return nullptr;
@@ -133,16 +141,14 @@ void *barber(void *arg)
 
 void *customer(void *arg)
 {
-    ThreadParam *customer_param = (ThreadParam *)arg;
-    Shop_org &shop = *customer_param->shop;
-    int id1 = customer_param->id;
+    ThreadParam *customer_param     = (ThreadParam *)arg;
+    Shop &shop                      = *customer_param->shop;
+    int id1                         = customer_param->id;
     delete customer_param;
 
-    // change to return int
     int barberID = shop.visitShop(id1);
     if (barberID > 0)
     {
-        // cout << "\n testing barber ID for thread " << id1 <<" \t " << barberID << endl;
         shop.leaveShop(id1, barberID);
     }
     return nullptr;
