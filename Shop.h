@@ -30,15 +30,15 @@ public:
    // waiting chairs
    // Postconditions: A general shop monitor is created
    Shop(int num_customers, int num_chairs, int num_barbers) : 
-      max_waiting_cust_((num_chairs > 0) ? num_chairs : kDefaultNumChairs),
+      max_waiting_cust_((num_chairs >= 0) ? num_chairs : kDefaultNumChairs),
       customer_in_chair_{nullptr},
       in_service_{nullptr},
       money_paid_{nullptr},
       ready_to_serve{nullptr},
       cust_drops_(0)
    {
-      int numBarbarbers    = (num_barbers > 0) ? num_barbers : kDefaultNumBarbers;
-      int numCustomers     = (num_customers > 0) ? num_customers : kDefaultCustomers;
+      int numBarbarbers    = (num_barbers >= 0) ? num_barbers : kDefaultNumBarbers;
+      int numCustomers     = (num_customers >= 0) ? num_customers : kDefaultCustomers;
 
       // +1 to allow for barber ID to be used as signal catcher
       customer_in_chair_                     = new int[numBarbarbers + 1];
