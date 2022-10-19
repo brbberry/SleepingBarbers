@@ -1,5 +1,5 @@
 ## The Classic Barber Shop Problem
-A barbershop consists of a waiting room with n waiting chairs one barber and one chair. When there no customers require a haircut, the barber takes a nap. If a customer enters the barbershop and the waiting room with n chairs is full, then the customer leaves the shop. If the barber is working with a customer and there are waiting chairs are available, then the customer takes one of the waiting chairs. If the barber is sleeping, the customer wakes up the barber and undergoes the haircut process.
+A barbershop consists of a waiting room with n waiting chairs one barber and one service chair. When there are no customers that require a haircut, the barber takes a nap. When a customer enters the barbershop and the waiting room (with n chairs) is full, the customer leaves the shop. If the barber is working with a customer and there are waiting chairs are available, the customer takes one of the waiting chairs. If the barber is sleeping when the cutomer comes in and can be serviced, the customer wakes the barber and undergoes the haircut process.
 
 ## This Projects Extension
 *	This barber shop will consist of n waiting chairs, x barbers, and y barber chairs. If there are no customers in the shop, then all the barbers are asleep.
